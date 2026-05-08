@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ensemble Methods: Voting vs Stacking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            /* Very faint slate for contrast */
+        }
+
+        .step-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pulse-arrow {
+            animation: pulse-down 1.5s infinite;
+        }
+
+        @keyframes pulse-down {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(5px);
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4 text-slate-800">
+
+    <div
+        class="bg-white w-full max-w-5xl rounded-2xl shadow-xl border border-slate-100 overflow-hidden flex flex-col h-[85vh]">
+
+        <!-- Header & Progress -->
+        <div class="bg-white border-b border-slate-100 p-6 z-10">
+            <h1 class="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                    </path>
+                </svg>
+                Ensemble Methods: Voting vs Stacking
+            </h1>
+            <div class="relative w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div id="progress-bar"
+                    class="absolute top-0 left-0 h-full bg-indigo-600 transition-all duration-300 ease-out"
+                    style="width: 16.66%;"></div>
+            </div>
+            <p id="step-indicator" class="text-sm text-slate-500 mt-2 font-medium">Step 1 of 6</p>
+        </div>
+
+        <!-- Content Area -->
+        <div class="flex-1 overflow-y-auto p-6 md:p-10 relative">
+
+            <!-- STEP 1: Introduction -->
+            <div id="step-1" class="step-content active">
+                <div class="max-w-3xl mx-auto text-center mt-8">
+                    <div
+                        class="inline-flex items-center justify-center w-20 h-20 bg-indigo-50 rounded-full mb-6 text-indigo-600">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h2 class="text-3xl font-bold mb-4">The Wisdom of the Crowd</h2>
+                    <p class="text-lg text-slate-600 leading-relaxed mb-6">
+                        In Machine Learning, relying on a single model can be risky. It might overfit, or it might just
+                        be bad at predicting certain types of data.
+                    </p>
+                    <p class="text-lg text-slate-600 leading-relaxed mb-8">
+                        <strong>Ensemble Methods</strong> solve this by combining multiple models (called "base
+                        learners") to create one strong, highly accurate super-model. Today, we'll explore two crucial
+                        techniques:
+                        <span class="text-blue-600 font-semibold">Voting</span> and <span
+                            class="text-purple-600 font-semibold">Stacking</span>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- STEP 2: Voting Concept -->
+            <div id="step-2" class="step-content">
+                <h2 class="text-2xl font-bold text-blue-700 mb-6 flex items-center gap-2">
+                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-md text-sm">1</span>
+                    The Voting Classifier
+                </h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <p class="text-slate-600 text-lg leading-relaxed mb-4">
+                            Think of a Voting Classifier like a democratic election. You train several different
+                            independent models (e.g., a Decision Tree, an SVM, and a Logistic Regression) on your
+                            dataset.
+                        </p>
+                        <p class="text-slate-600 text-lg leading-relaxed mb-4">
+                            When a new data point arrives, every model makes a prediction. The final output is decided
+                            by gathering their "votes".
+                        </p>
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mt-6">
+                            <h4 class="font-bold text-blue-900 mb-2">Two Types of Voting:</h4>
+                            <ul class="list-disc list-inside text-sm text-blue-800 space-y-2">
+                                <li><strong>Hard Voting:</strong> Majority wins. If 2 models say "Cat" and 1 says "Dog",
+                                    the answer is Cat.</li>
+                                <li><strong>Soft Voting:</strong> Averages the probabilities. If models are 90%, 40%,
+                                    and 60% sure it's a Cat, the average probability is 63% (Cat wins).</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-center bg-slate-50 rounded-xl border border-slate-200 p-6">
+                        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='10' y='10' width='80' height='80' fill='%23eff6ff' rx='10'/><path d='M30 50 l15 15 l25 -30' fill='none' stroke='%233b82f6' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/></svg>"
+                            alt="Vote" class="w-48 h-48 opacity-80" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: Voting Visual -->
+            <div id="step-3" class="step-content">
+                <h2 class="text-2xl font-bold text-blue-700 mb-8 text-center">Voting Classifier in Action (Hard Voting)
+                </h2>
+
+                <div class="flex flex-col items-center justify-center space-y-4 max-w-2xl mx-auto">
+                    <!-- Data Input -->
+                    <div class="bg-slate-800 text-white px-6 py-3 rounded-lg font-mono shadow-md">
+                        Input Data: X
+                    </div>
+
+                    <!-- Arrows down -->
+                    <div class="flex w-full justify-between px-16 relative h-10">
+                        <div class="w-px bg-slate-300 h-full absolute left-[20%]"></div>
+                        <div class="w-px bg-slate-300 h-full absolute left-[50%]"></div>
+                        <div class="w-px bg-slate-300 h-full absolute right-[20%]"></div>
+                    </div>
+
+                    <!-- Base Models -->
+                    <div class="flex w-full justify-between">
+                        <div class="bg-white border-2 border-blue-200 p-4 rounded-xl shadow-sm text-center w-[30%]">
+                            <div class="text-sm font-bold text-slate-500">Model 1</div>
+                            <div class="font-semibold text-blue-700">Random Forest</div>
+                            <div class="mt-2 text-xs bg-slate-100 py-1 rounded">Says: "Class A"</div>
+                        </div>
+                        <div class="bg-white border-2 border-blue-200 p-4 rounded-xl shadow-sm text-center w-[30%]">
+                            <div class="text-sm font-bold text-slate-500">Model 2</div>
+                            <div class="font-semibold text-blue-700">SVM</div>
+                            <div class="mt-2 text-xs bg-slate-100 py-1 rounded">Says: "Class B"</div>
+                        </div>
+                        <div class="bg-white border-2 border-blue-200 p-4 rounded-xl shadow-sm text-center w-[30%]">
+                            <div class="text-sm font-bold text-slate-500">Model 3</div>
+                            <div class="font-semibold text-blue-700">KNN</div>
+                            <div class="mt-2 text-xs bg-slate-100 py-1 rounded">Says: "Class A"</div>
+                        </div>
+                    </div>
+
+                    <!-- Arrows down converging -->
+                    <div class="flex w-full justify-center relative h-12">
+                        <svg class="absolute w-full h-full text-slate-300" preserveAspectRatio="none"
+                            viewBox="0 0 100 100">
+                            <path d="M 20 0 L 50 100" stroke="currentColor" stroke-width="2" fill="none" />
+                            <path d="M 50 0 L 50 100" stroke="currentColor" stroke-width="2" fill="none" />
+                            <path d="M 80 0 L 50 100" stroke="currentColor" stroke-width="2" fill="none" />
+                        </svg>
+                        <div class="absolute bottom-0 text-slate-400 pulse-arrow">↓</div>
+                    </div>
+
+                    <!-- Aggregation -->
+                    <div class="bg-blue-600 text-white px-8 py-4 rounded-xl shadow-lg text-center z-10 w-64">
+                        <div class="text-sm opacity-80 uppercase tracking-wide font-semibold">Aggregation</div>
+                        <div class="font-bold text-lg mt-1">Majority Vote</div>
+                        <div class="text-xs mt-2 bg-blue-800/50 py-1 px-2 rounded">A: 2 votes, B: 1 vote</div>
+                    </div>
+
+                    <!-- Arrow down -->
+                    <div class="h-8 w-px bg-slate-300"></div>
+                    <div class="text-slate-400 -mt-2 pulse-arrow">↓</div>
+
+                    <!-- Output -->
+                    <div
+                        class="bg-green-100 border-2 border-green-400 text-green-800 font-bold px-8 py-3 rounded-full shadow-md text-xl">
+                        Final Output: Class A
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 4: Stacking Concept -->
+            <div id="step-4" class="step-content">
+                <h2 class="text-2xl font-bold text-purple-700 mb-6 flex items-center gap-2">
+                    <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-md text-sm">2</span>
+                    The Stacking Classifier
+                </h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <p class="text-slate-600 text-lg leading-relaxed mb-4">
+                            Stacking (Stacked Generalization) is the hierarchical, "smart" version of voting. Instead of
+                            blindly trusting a majority vote, Stacking learns <strong>which models to trust</strong>.
+                        </p>
+                        <p class="text-slate-600 text-lg leading-relaxed mb-4">
+                            First, base models (Level-0) make their predictions. Instead of aggregating these
+                            immediately, Stacking uses these predictions as <strong>new input features</strong> to train
+                            a final "Meta-Model" (Level-1).
+                        </p>
+                        <div class="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-r-lg mt-6">
+                            <h4 class="font-bold text-purple-900 mb-2">Why is this better?</h4>
+                            <p class="text-sm text-purple-800">
+                                The Meta-Model might learn: "When Random Forest says Class A, it's usually right. But
+                                when SVM says Class B, it's often wrong." It automatically figures out the optimal way
+                                to combine them!
+                            </p>
+                        </div>
+                    </div>
+                    <div
+                        class="flex items-center justify-center bg-slate-50 rounded-xl border border-slate-200 p-6 relative">
+                        <!-- CSS Representation of layers -->
+                        <div class="flex flex-col items-center space-y-4 w-full">
+                            <div class="flex space-x-2 w-full justify-center">
+                                <div class="w-12 h-12 bg-indigo-200 rounded"></div>
+                                <div class="w-12 h-12 bg-indigo-200 rounded"></div>
+                                <div class="w-12 h-12 bg-indigo-200 rounded"></div>
+                            </div>
+                            <div class="text-slate-400 text-sm font-mono">Level 0 Models</div>
+                            <div class="h-8 w-px bg-slate-300"></div>
+                            <div
+                                class="w-20 h-12 bg-purple-500 rounded text-white flex items-center justify-center text-xs font-bold">
+                                Meta</div>
+                            <div class="text-slate-400 text-sm font-mono">Level 1 Model</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 5: Stacking Visual -->
+            <div id="step-5" class="step-content">
+                <h2 class="text-2xl font-bold text-purple-700 mb-8 text-center">Stacking Classifier Flow</h2>
+
+                <div class="flex flex-col items-center justify-center space-y-4 max-w-2xl mx-auto">
+                    <!-- Data Input -->
+                    <div class="bg-slate-800 text-white px-6 py-3 rounded-lg font-mono shadow-md">
+                        Input Data: X
+                    </div>
+
+                    <!-- Arrows down -->
+                    <div class="flex w-full justify-between px-16 relative h-8">
+                        <div class="w-px bg-slate-300 h-full absolute left-[20%]"></div>
+                        <div class="w-px bg-slate-300 h-full absolute left-[50%]"></div>
+                        <div class="w-px bg-slate-300 h-full absolute right-[20%]"></div>
+                    </div>
+
+                    <!-- Base Models -->
+                    <div class="flex w-full justify-between relative">
+                        <div
+                            class="absolute -left-12 top-6 text-xs text-slate-400 -rotate-90 tracking-widest font-mono uppercase">
+                            Level 0</div>
+                        <div class="bg-white border-2 border-indigo-200 p-3 rounded-xl shadow-sm text-center w-[30%]">
+                            <div class="font-semibold text-indigo-700 text-sm">Decision Tree</div>
+                            <div class="mt-2 text-xs bg-slate-100 py-1 rounded">Pred: \( \hat{y}_1 \)</div>
+                        </div>
+                        <div class="bg-white border-2 border-indigo-200 p-3 rounded-xl shadow-sm text-center w-[30%]">
+                            <div class="font-semibold text-indigo-700 text-sm">Neural Net</div>
+                            <div class="mt-2 text-xs bg-slate-100 py-1 rounded">Pred: \( \hat{y}_2 \)</div>
+                        </div>
+                        <div class="bg-white border-2 border-indigo-200 p-3 rounded-xl shadow-sm text-center w-[30%]">
+                            <div class="font-semibold text-indigo-700 text-sm">KNN</div>
+                            <div class="mt-2 text-xs bg-slate-100 py-1 rounded">Pred: \( \hat{y}_3 \)</div>
+                        </div>
+                    </div>
+
+                    <!-- Converge to New Features -->
+                    <div class="flex w-full justify-center relative h-10">
+                        <svg class="absolute w-full h-full text-slate-300" preserveAspectRatio="none"
+                            viewBox="0 0 100 100">
+                            <path d="M 20 0 L 50 100" stroke="currentColor" stroke-width="2" fill="none" />
+                            <path d="M 50 0 L 50 100" stroke="currentColor" stroke-width="2" fill="none" />
+                            <path d="M 80 0 L 50 100" stroke="currentColor" stroke-width="2" fill="none" />
+                        </svg>
+                        <div class="absolute bottom-0 text-slate-400 pulse-arrow">↓</div>
+                    </div>
+
+                    <!-- Meta Features array -->
+                    <div
+                        class="bg-slate-100 border border-slate-300 px-6 py-2 rounded-md font-mono text-sm text-slate-700 shadow-inner">
+                        New Feature Vector: [ \( \hat{y}_1, \hat{y}_2, \hat{y}_3 \) ]
+                    </div>
+
+                    <!-- Arrow down -->
+                    <div class="h-6 w-px bg-slate-300"></div>
+                    <div class="text-slate-400 -mt-2 pulse-arrow">↓</div>
+
+                    <!-- Meta Model -->
+                    <div class="relative w-64">
+                        <div
+                            class="absolute -left-12 top-4 text-xs text-slate-400 -rotate-90 tracking-widest font-mono uppercase">
+                            Level 1</div>
+                        <div class="bg-purple-600 text-white px-8 py-4 rounded-xl shadow-lg text-center z-10 w-full">
+                            <div class="text-sm opacity-80 uppercase tracking-wide font-semibold">Meta-Model</div>
+                            <div class="font-bold text-lg mt-1">Logistic Regression</div>
+                            <div class="text-xs mt-2 text-purple-200">Learns weights for Level 0</div>
+                        </div>
+                    </div>
+
+                    <!-- Arrow down -->
+                    <div class="h-6 w-px bg-slate-300"></div>
+                    <div class="text-slate-400 -mt-2 pulse-arrow">↓</div>
+
+                    <!-- Output -->
+                    <div
+                        class="bg-green-100 border-2 border-green-400 text-green-800 font-bold px-8 py-3 rounded-full shadow-md text-xl">
+                        Final Output: \( \hat{Y} \)
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 6: Equations -->
+            <div id="step-6" class="step-content">
+                <h2 class="text-3xl font-bold text-slate-800 mb-8 text-center flex items-center justify-center gap-3">
+                    <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                    The Math Behind the Magic
+                </h2>
+
+                <div class="space-y-6 max-w-4xl mx-auto">
+
+                    <!-- Hard Voting Equation -->
+                    <div class="bg-white border border-blue-100 shadow-sm rounded-xl p-6">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+                            <h3 class="text-lg font-bold text-blue-900">Hard Voting (Majority Rule)</h3>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-4">The final prediction \( \hat{y} \) is the mode (most
+                            frequent prediction) among the \( m \) base models \( h_i(\mathbf{x}) \).</p>
+                        <div
+                            class="bg-slate-50 py-4 px-6 rounded-lg overflow-x-auto text-center border border-slate-200">
+                            $$ \hat{y} = \text{mode} \{ h_1(\mathbf{x}), h_2(\mathbf{x}), \dots, h_m(\mathbf{x}) \} $$
+                        </div>
+                    </div>
+
+                    <!-- Soft Voting Equation -->
+                    <div class="bg-white border border-blue-100 shadow-sm rounded-xl p-6">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="w-3 h-3 rounded-full bg-cyan-500"></span>
+                            <h3 class="text-lg font-bold text-blue-900">Soft Voting (Weighted Probabilities)</h3>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-4">Selects the class \( c \) that maximizes the average (or
+                            weighted) predicted probability \( P \) across all \( m \) models.</p>
+                        <div
+                            class="bg-slate-50 py-4 px-6 rounded-lg overflow-x-auto text-center border border-slate-200">
+                            $$ \hat{y} = \arg\max_{c} \frac{1}{m} \sum_{i=1}^{m} P(y=c \mid \mathbf{x}, M_i) $$
+                        </div>
+                    </div>
+
+                    <!-- Stacking Equation -->
+                    <div class="bg-white border border-purple-100 shadow-sm rounded-xl p-6">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="w-3 h-3 rounded-full bg-purple-500"></span>
+                            <h3 class="text-lg font-bold text-purple-900">Stacking Classifier</h3>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-4">First, calculate intermediate predictions \( Z \) from \(
+                            m \) base models. Then, pass \( Z \) to the meta-model \( f_{\text{meta}} \).</p>
+                        <div
+                            class="bg-slate-50 py-4 px-6 rounded-lg overflow-x-auto text-center border border-slate-200 flex flex-col gap-2">
+                            <span>$$ Z_i = h_i(\mathbf{x}) \quad \text{for } i = 1, \dots, m $$</span>
+                            <span>$$ \hat{y} = f_{\text{meta}}(Z_1, Z_2, \dots, Z_m) $$</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-4 italic text-center">Where \( f_{\text{meta}} \) is
+                            commonly a Logistic Regression model learning the optimal weights for \( Z \).</p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer / Controls -->
+        <div class="bg-slate-50 border-t border-slate-200 p-4 md:px-8 flex items-center justify-between z-10">
+            <button id="btn-back"
+                class="px-5 py-2.5 rounded-lg font-medium text-slate-600 bg-white border border-slate-300 shadow-sm hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                disabled>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Back
+            </button>
+            <div class="flex space-x-2" id="dot-indicators">
+                <!-- Dots generated by JS -->
+            </div>
+            <button id="btn-next"
+                class="px-5 py-2.5 rounded-lg font-medium text-white bg-indigo-600 shadow-sm hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                Next Step
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script src="../js/stacking_n_voting_classifier.js"></script>
+</body>
+
+</html>

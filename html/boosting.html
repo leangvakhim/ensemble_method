@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding Boosting in Machine Learning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- MathJax for rendering the Boosting equation -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            startup: {
+                typeset: false // We will manually trigger this on step changes
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        .point {
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .boundary {
+            transition: all 0.5s ease-in-out;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-white text-slate-800 min-h-screen p-4 md:p-8 font-sans">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8 fade-in">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2 tracking-tight">Understanding Boosting
+            </h1>
+            <p class="text-slate-500 text-lg">An interactive step-by-step guide to how ensemble methods learn from
+                mistakes.</p>
+        </header>
+
+        <!-- Main Visualization Container -->
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden fade-in"
+            style="animation-delay: 0.1s;">
+
+            <!-- Step Info Area -->
+            <div class="p-6 md:p-8 border-b border-slate-100 bg-slate-50">
+                <div class="flex items-center justify-between mb-4">
+                    <span id="step-counter"
+                        class="bg-indigo-100 text-indigo-800 text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                        Step 1 of 7
+                    </span>
+                </div>
+                <h2 id="step-title" class="text-2xl font-bold text-slate-800 mb-3">The Initial Dataset</h2>
+                <p id="step-desc" class="text-slate-600 leading-relaxed min-h-[4rem]">
+                    <!-- Description injected here -->
+                </p>
+            </div>
+
+            <!-- Plot Area (Dynamic) -->
+            <div class="relative p-6 bg-white">
+                <div id="plot-area"
+                    class="relative w-full h-[400px] border-2 border-slate-100 rounded-xl overflow-hidden bg-slate-50 shadow-inner">
+                    <!-- Boundaries will be injected here -->
+                    <div id="boundaries-container" class="absolute inset-0 z-0"></div>
+
+                    <!-- Points will be injected here -->
+                    <div id="points-container" class="absolute inset-0 z-10"></div>
+                </div>
+
+                <!-- Equation Area (Hidden by default) -->
+                <div id="equation-area"
+                    class="hidden absolute inset-0 z-20 bg-white/95 backdrop-blur-sm p-4 md:p-8 flex flex-col justify-start md:justify-center overflow-y-auto">
+                    <h3 class="text-xl md:text-2xl font-bold text-center text-slate-800 mb-4 md:mb-6">The Mathematics of
+                        Boosting</h3>
+                    <div
+                        class="bg-slate-50 p-4 md:p-6 rounded-xl border border-slate-200 text-center shadow-sm mb-4 md:mb-6">
+                        <div class="text-2xl md:text-3xl text-indigo-900">
+                            $$F_M(x) = \sum_{m=1}^M \alpha_m h_m(x)$$
+                        </div>
+                    </div>
+                    <div class="max-w-2xl mx-auto space-y-2 md:space-y-3 text-slate-700 text-sm md:text-base">
+                        <p><span class="font-bold text-indigo-600">\(F_M(x)\)</span> : The final strong ensemble model's
+                            prediction.</p>
+                        <p><span class="font-bold text-indigo-600">\(M\)</span> : The total number of iterations (weak
+                            learners).</p>
+                        <p><span class="font-bold text-indigo-600">\(h_m(x)\)</span> : The prediction of the \(m\)-th
+                            weak learner (e.g., a simple decision stump).</p>
+                        <p><span class="font-bold text-indigo-600">\(\alpha_m\)</span> : The voting power (weight)
+                            assigned to the \(m\)-th learner. Models with higher accuracy get larger \(\alpha_m\)
+                            values.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="p-4 md:p-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                <button id="btn-prev"
+                    class="px-6 py-2.5 rounded-lg font-medium text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 hover:text-slate-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    &larr; Previous Step
+                </button>
+
+                <div class="flex gap-2" id="step-dots">
+                    <!-- Dots injected via JS -->
+                </div>
+
+                <button id="btn-next"
+                    class="px-6 py-2.5 rounded-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                    Next Step &rarr;
+                </button>
+            </div>
+        </div>
+
+        <!-- Extra Note -->
+        <p class="text-center text-slate-400 text-sm mt-8">
+            Blue represents Class +1. Orange represents Class -1.<br>
+            A red ring indicates a misclassified data point.
+        </p>
+    </div>
+
+    <script src="../js/boosting.js"></script>
+</body>
+
+</html>
