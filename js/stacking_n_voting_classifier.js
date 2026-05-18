@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const totalSteps = 6;
+    // Increased to 10 to include the new Python code tutorial step
+    const totalSteps = 10;
     let currentStep = 1;
 
     const btnBack = document.getElementById('btn-back');
@@ -49,16 +50,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // Show/Hide steps
         for (let i = 1; i <= totalSteps; i++) {
             const stepEl = document.getElementById(`step-${i}`);
-            if (i === currentStep) {
-                stepEl.classList.add('active');
-            } else {
-                stepEl.classList.remove('active');
+            if (stepEl) {
+                if (i === currentStep) {
+                    stepEl.classList.add('active');
+                } else {
+                    stepEl.classList.remove('active');
+                }
             }
         }
 
-        // Force MathJax to re-render if we hit the equations page
-        if (currentStep === 6 && window.MathJax) {
-            MathJax.typesetPromise();
+        // Force MathJax to re-render if we hit pages with equations
+        // Triggering safely on every page change where math might exist
+        if (window.MathJax && [5, 6, 7, 8, 9, 10].includes(currentStep)) {
+            MathJax.typesetPromise().catch((err) => console.log('MathJax error:', err));
         }
     }
 
@@ -75,4 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
             updateUI();
         }
     });
+
+    // Initial MathJax render just in case
+    if (window.MathJax) {
+        MathJax.typesetPromise();
+    }
 });
